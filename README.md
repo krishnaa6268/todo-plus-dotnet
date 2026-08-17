@@ -1,6 +1,6 @@
-# TaskFlow - ASP.NET Core MVC Todo Application with MongoDB 📝
+# TodoPlus - ASP.NET Core MVC Todo Application with MongoDB 📝
 
-TaskFlow is a modern, responsive, and feature-rich Todo Application built with **ASP.NET Core 10.0 MVC** and **MongoDB** (supporting both MongoDB Atlas Cloud & local MongoDB instances) via the official **`MongoDB.Driver`**.
+**TodoPlus** (TaskFlow) is a modern, responsive, and feature-rich Todo Application built with **ASP.NET Core 10.0 MVC** and **MongoDB** (supporting both MongoDB Atlas Cloud & local MongoDB instances) via the official **`MongoDB.Driver`**.
 
 ---
 
@@ -49,18 +49,21 @@ TaskFlow is a modern, responsive, and feature-rich Todo Application built with *
 | **Data Mapping** | BSON Serializers (`BsonId`, `BsonRepresentation`, `BsonDateTimeOptions`) |
 | **Frontend** | Razor Views (`.cshtml`), HTML5, CSS3, JavaScript |
 | **Styling** | Bootstrap 5, Bootstrap Icons |
+| **Version Control** | Git & GitHub (`main` branch) |
 
 ---
 
 ## 📂 Project Structure
 
 ```text
-FirstMvc/
+TodoPlus/
 ├── Controllers/
+│   ├── HomeController.cs        # Handles default route and error views
 │   └── TodoController.cs        # Handles MongoDB CRUD operations, filters, sorts, and stats
 ├── Data/
 │   └── MongoDbContext.cs        # Encapsulates IMongoDatabase, IMongoCollection, and seed logic
 ├── Models/
+│   ├── ErrorViewModel.cs        # Error presentation model
 │   ├── MongoDbSettings.cs       # Strongly-typed configuration class for MongoDB options
 │   ├── Priority.cs              # Priority Enum (Low, Medium, High)
 │   └── TodoItem.cs              # Todo model with BSON attributes (BsonId, BsonRepresentation)
@@ -75,9 +78,10 @@ FirstMvc/
 ├── wwwroot/
 │   └── css/
 │       └── site.css             # Custom styling, badges, and card animations
+├── .gitignore                   # Comprehensive .NET & OS git ignore rules
 ├── appsettings.json             # MongoDB connection string and database configuration
 ├── Program.cs                   # App entry point, DI services, MongoDB setup & routing
-└── FirstMvc.csproj              # Project configuration and NuGet packages
+└── TodoPlus.csproj              # Project configuration and NuGet packages
 ```
 
 ---
@@ -89,44 +93,46 @@ FirstMvc/
 Ensure you have the following installed on your machine:
 - [.NET 10 SDK](https://dotnet.microsoft.com/download) (or .NET 8/9+ SDK)
 - Access to a **MongoDB Atlas Cluster** URI or a local MongoDB instance (`mongodb://localhost:27017`).
+- [Git](https://git-scm.com/)
 
-### ⚙️ MongoDB Configuration
+### 📥 Repository Setup
 
-Configure your MongoDB Atlas or local connection string in `appsettings.json`:
-
-```json
-{
-  "MongoDbSettings": {
-    "ConnectionString": "mongodb+srv://<username>:<password>@cluster0.cvxptsk.mongodb.net",
-    "DatabaseName": "todo-csharp",
-    "CollectionName": "TodoItems"
-  }
-}
-```
-
-### Running the Application
-
-1. **Navigate to Project Directory**:
+1. **Clone the Repository**:
    ```bash
-   cd FirstMvc
+   git clone https://github.com/krishnaa6268/todo-plus-dotnet.git
+   cd todo-plus-dotnet/TodoPlus
    ```
 
-2. **Restore Dependencies**:
+2. **⚙️ MongoDB Configuration**:
+
+   Configure your MongoDB Atlas or local connection string in `appsettings.json`:
+
+   ```json
+   {
+     "MongoDbSettings": {
+       "ConnectionString": "mongodb+srv://<username>:<password>@cluster0.cvxptsk.mongodb.net",
+       "DatabaseName": "todo-csharp",
+       "CollectionName": "TodoItems"
+     }
+   }
+   ```
+
+3. **Restore Dependencies**:
    ```bash
    dotnet restore
    ```
 
-3. **Build the Project**:
+4. **Build the Project**:
    ```bash
    dotnet build
    ```
 
-4. **Run the Application**:
+5. **Run the Application**:
    ```bash
    dotnet run
    ```
 
-5. **Open in Browser**:
+6. **Open in Browser**:
    Navigate to `http://localhost:5270` in your web browser.
 
 ---
@@ -189,3 +195,4 @@ In `Program.cs` and `MongoDbContext.cs`, the application checks if the `TodoItem
 ## 📄 License
 
 This project is open-source and available under the [MIT License](LICENSE).
+
