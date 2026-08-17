@@ -1,0 +1,306 @@
+@model IEnumerable<TodoPlus.Models.TodoItem>
+@using TodoPlus.Models
+
+@{
+    ViewData["Title"] = "Task Dashboard";
+    var totalCount = (int)(ViewData["TotalCount"] ?? 0);
+    var pendingCount = (int)(ViewData["PendingCount"] ?? 0);
+    var completedCount = (int)(ViewData["CompletedCount"] ?? 0);
+    var overdueCount = (int)(ViewData["OverdueCount"] ?? 0);
+    var currentFilter = (string)(ViewData["CurrentFilter"] ?? "all");
+    var currentCategory = (string?)(ViewData["CurrentCategory"]);
+    var currentSearch = (string?)(ViewData["CurrentSearch"]);
+    var currentSort = (string)(ViewData["CurrentSort"] ?? "dueDate");
+    var categories = (List<string>)(ViewData["Categories"] ?? new List<string>());
+
+    int completionPercent = totalCount > 0 ? (int)Math.Round((double)completedCount / totalCount * 100) : 0;
+}
+
+<div class="row mb-4 align-items-center">
+    <div class="col-md-7">
+        <h1 class="fw-bold mb-1"><i class="bi bi-card-checklist text-primary me-2"></i>Task Dashboard</h1>
+        <p class="text-secondary mb-0">Organize, track, and accomplish your daily goals efficiently.</p>
+    </div>
+    <div class="col-md-5 text-md-end mt-3 mt-md-0">
+        <a asp-action="Create" class="btn btn-primary btn-lg shadow-sm rounded-pill px-4">
+            <i class="bi bi-plus-lg me-1"></i> Add New Task
+        </a>
+    </div>
+</div>
+
+@if (ViewData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-3 mb-4" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> @ViewData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Summary Statistics Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm rounded-3 bg-white h-100 p-3 border-start border-primary border-4">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-uppercase text-muted fw-semibold small">Total Tasks</span>
+                    <h2 class="fw-bold mb-0 text-dark">@totalCount</h2>
+                </div>
+                <div class="bg-primary-subtle text-primary p-3 rounded-circle">
+                    <i class="bi bi-collection fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm rounded-3 bg-white h-100 p-3 border-start border-warning border-4">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-uppercase text-muted fw-semibold small">Pending</span>
+                    <h2 class="fw-bold mb-0 text-warning">@pendingCount</h2>
+                </div>
+                <div class="bg-warning-subtle text-warning p-3 rounded-circle">
+                    <i class="bi bi-hourglass-split fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm rounded-3 bg-white h-100 p-3 border-start border-success border-4">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-uppercase text-muted fw-semibold small">Completed</span>
+                    <h2 class="fw-bold mb-0 text-success">@completedCount</h2>
+                </div>
+                <div class="bg-success-subtle text-success p-3 rounded-circle">
+                    <i class="bi bi-check-circle-fill fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm rounded-3 bg-white h-100 p-3 border-start border-danger border-4">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-uppercase text-muted fw-semibold small">Overdue</span>
+                    <h2 class="fw-bold mb-0 text-danger">@overdueCount</h2>
+                </div>
+                <div class="bg-danger-subtle text-danger p-3 rounded-circle">
+                    <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Progress Bar -->
+<div class="card border-0 shadow-sm rounded-3 bg-white mb-4 p-3">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="fw-semibold text-secondary"><i class="bi bi-graph-up me-1"></i> Overall Progress</span>
+        <span class="badge bg-primary rounded-pill fs-6">@completionPercent% Done</span>
+    </div>
+    <div class="progress" style="height: 10px;">
+        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: @completionPercent%;" aria-valuenow="@completionPercent" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+</div>
+
+<!-- Filter & Search Controls -->
+<div class="card border-0 shadow-sm rounded-3 bg-white mb-4 p-3">
+    <form method="get" asp-action="Index" class="row g-3 align-items-center">
+        <input type="hidden" name="filter" value="@currentFilter" />
+
+        <div class="col-md-4">
+            <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" name="search" value="@currentSearch" class="form-control border-start-0 bg-light" placeholder="Search tasks by title or details..." />
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <select name="category" class="form-select bg-light" onchange="this.form.submit()">
+                <option value="">All Categories</option>
+                @foreach (var cat in categories)
+                {
+                    if (cat == currentCategory)
+                    {
+                        <option value="@cat" selected>@cat</option>
+                    }
+                    else
+                    {
+                        <option value="@cat">@cat</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <select name="sortBy" class="form-select bg-light" onchange="this.form.submit()">
+                <option value="dueDate" selected="@(currentSort == "dueDate")">Sort by Due Date</option>
+                <option value="priority" selected="@(currentSort == "priority")">Sort by Priority</option>
+                <option value="created" selected="@(currentSort == "created")">Sort by Date Created</option>
+                <option value="title" selected="@(currentSort == "title")">Sort by Title</option>
+            </select>
+        </div>
+
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-dark w-100"><i class="bi bi-funnel"></i> Apply</button>
+            @if (!string.IsNullOrEmpty(currentSearch) || !string.IsNullOrEmpty(currentCategory))
+            {
+                <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
+            }
+        </div>
+    </form>
+
+    <!-- Filter Pills Nav -->
+    <div class="d-flex flex-wrap gap-2 mt-3 pt-3 border-top">
+        <a asp-action="Index" asp-route-filter="all" asp-route-category="@currentCategory" asp-route-search="@currentSearch" asp-route-sortBy="@currentSort" 
+           class="btn btn-sm rounded-pill @(currentFilter == "all" ? "btn-primary" : "btn-outline-secondary")">
+            All (@totalCount)
+        </a>
+        <a asp-action="Index" asp-route-filter="active" asp-route-category="@currentCategory" asp-route-search="@currentSearch" asp-route-sortBy="@currentSort" 
+           class="btn btn-sm rounded-pill @(currentFilter == "active" ? "btn-warning text-dark" : "btn-outline-secondary")">
+            <i class="bi bi-circle me-1"></i> Active (@pendingCount)
+        </a>
+        <a asp-action="Index" asp-route-filter="completed" asp-route-category="@currentCategory" asp-route-search="@currentSearch" asp-route-sortBy="@currentSort" 
+           class="btn btn-sm rounded-pill @(currentFilter == "completed" ? "btn-success" : "btn-outline-secondary")">
+            <i class="bi bi-check-circle me-1"></i> Completed (@completedCount)
+        </a>
+        <a asp-action="Index" asp-route-filter="high" asp-route-category="@currentCategory" asp-route-search="@currentSearch" asp-route-sortBy="@currentSort" 
+           class="btn btn-sm rounded-pill @(currentFilter == "high" ? "btn-danger" : "btn-outline-secondary")">
+            <i class="bi bi-fire me-1"></i> High Priority
+        </a>
+        <a asp-action="Index" asp-route-filter="overdue" asp-route-category="@currentCategory" asp-route-search="@currentSearch" asp-route-sortBy="@currentSort" 
+           class="btn btn-sm rounded-pill @(currentFilter == "overdue" ? "btn-dark" : "btn-outline-secondary")">
+            <i class="bi bi-alarm me-1"></i> Overdue (@overdueCount)
+        </a>
+    </div>
+</div>
+
+<!-- Task List -->
+@if (!Model.Any())
+{
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-5 text-center my-4">
+        <div class="my-3">
+            <i class="bi bi-journal-x text-muted display-1"></i>
+        </div>
+        <h4 class="fw-bold text-secondary">No tasks found</h4>
+        <p class="text-muted">No tasks match your current filter or search criteria. Try creating a new task!</p>
+        <div class="mt-2">
+            <a asp-action="Create" class="btn btn-primary rounded-pill px-4"><i class="bi bi-plus-lg me-1"></i> Create Task</a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var item in Model)
+        {
+            var isOverdue = !item.IsCompleted && item.DueDate.HasValue && item.DueDate.Value.Date < DateTime.Today;
+            var isDueToday = !item.IsCompleted && item.DueDate.HasValue && item.DueDate.Value.Date == DateTime.Today;
+
+            <div class="col-12">
+                <div class="card border-0 shadow-sm rounded-3 task-card @(item.IsCompleted ? "bg-light-completed opacity-75" : "bg-white") p-3">
+                    <div class="d-flex align-items-start gap-3">
+                        <!-- Quick Toggle Form -->
+                        <form asp-action="ToggleComplete" method="post" class="mt-1">
+                            <input type="hidden" name="id" value="@item.Id" />
+                            <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                            <button type="submit" class="btn btn-link p-0 border-0 text-decoration-none shadow-none" title="Toggle completion">
+                                @if (item.IsCompleted)
+                                {
+                                    <i class="bi bi-check-circle-fill text-success fs-3"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-circle text-secondary fs-3 hover-check"></i>
+                                }
+                            </button>
+                        </form>
+
+                        <!-- Task Details -->
+                        <div class="flex-grow-1">
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-1">
+                                <h5 class="mb-0 fw-bold @(item.IsCompleted ? "text-decoration-line-through text-muted" : "text-dark")">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="text-reset text-decoration-none hover-title">@item.Title</a>
+                                </h5>
+
+                                <div class="d-flex align-items-center gap-2">
+                                    <!-- Priority Badge -->
+                                    @switch (item.Priority)
+                                    {
+                                        case Priority.High:
+                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2 py-1"><i class="bi bi-exclamation-octagon me-1"></i> High</span>
+                                            break;
+                                        case Priority.Medium:
+                                            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2 py-1"><i class="bi bi-dash-circle me-1"></i> Medium</span>
+                                            break;
+                                        case Priority.Low:
+                                            <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill px-2 py-1"><i class="bi bi-arrow-down-circle me-1"></i> Low</span>
+                                            break;
+                                    }
+
+                                    <!-- Category Badge -->
+                                    @if (!string.IsNullOrEmpty(item.Category))
+                                    {
+                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-2 py-1"><i class="bi bi-tag me-1"></i> @item.Category</span>
+                                    }
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(item.Description))
+                            {
+                                <p class="text-muted small mb-2 @(item.IsCompleted ? "text-decoration-line-through" : "")">
+                                    @(item.Description.Length > 150 ? item.Description.Substring(0, 147) + "..." : item.Description)
+                                </p>
+                            }
+
+                            <!-- Metadata Footer -->
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 pt-2 border-top border-light mt-2 small text-muted">
+                                <div class="d-flex align-items-center gap-3">
+                                    @if (item.DueDate.HasValue)
+                                    {
+                                        <span class="@(isOverdue ? "text-danger fw-bold" : isDueToday ? "text-warning-emphasis fw-bold" : "text-muted")">
+                                            <i class="bi bi-calendar-event me-1"></i> Due: @item.DueDate.Value.ToString("MMM dd, yyyy")
+                                            @if (isOverdue)
+                                            {
+                                                <span class="badge bg-danger ms-1">Overdue</span>
+                                            }
+                                            else if (isDueToday)
+                                            {
+                                                <span class="badge bg-warning text-dark ms-1">Due Today</span>
+                                            }
+                                        </span>
+                                    }
+                                    <span><i class="bi bi-clock me-1"></i> Created: @item.CreatedAt.ToString("MMM dd, HH:mm")</span>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="d-flex align-items-center gap-1">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info rounded-circle" title="View Details">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary rounded-circle" title="Edit Task">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this task?');">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle" title="Delete Task">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

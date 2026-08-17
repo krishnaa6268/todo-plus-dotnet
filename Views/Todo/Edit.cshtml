@@ -1,0 +1,84 @@
+@model TodoPlus.Models.TodoItem
+@using TodoPlus.Models
+
+@{
+    ViewData["Title"] = "Edit Task";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                <div>
+                    <h2 class="fw-bold mb-1 text-primary"><i class="bi bi-pencil-square me-2"></i>Edit Task</h2>
+                    <p class="text-secondary small mb-0">Modify task details and update status.</p>
+                </div>
+                <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-3">
+                    <i class="bi bi-arrow-left me-1"></i> Back to List
+                </a>
+            </div>
+
+            <form asp-action="Edit" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="CreatedAt" />
+                <input type="hidden" asp-for="CompletedAt" />
+
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label fw-semibold"></label>
+                    <input asp-for="Title" class="form-control form-control-lg bg-light" placeholder="Task Title" />
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label fw-semibold"></label>
+                    <textarea asp-for="Description" class="form-control bg-light" rows="3" placeholder="Task Description"></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="Priority" class="form-label fw-semibold"></label>
+                        <select asp-for="Priority" asp-items="Html.GetEnumSelectList<Priority>()" class="form-select bg-light">
+                        </select>
+                        <span asp-validation-for="Priority" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Category" class="form-label fw-semibold"></label>
+                        <input asp-for="Category" class="form-control bg-light" placeholder="Category" />
+                        <span asp-validation-for="Category" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="DueDate" class="form-label fw-semibold"></label>
+                        <input asp-for="DueDate" type="date" class="form-control bg-light" />
+                        <span asp-validation-for="DueDate" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6 d-flex align-items-end">
+                        <div class="form-check form-switch card bg-light p-3 border-0 w-100 mb-0">
+                            <input class="form-check-input ms-0 me-2" type="checkbox" asp-for="IsCompleted" id="isCompletedSwitch">
+                            <label class="form-check-label fw-bold text-dark" for="isCompletedSwitch">
+                                Mark Task as Completed
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 justify-content-end pt-3 border-top">
+                    <a asp-action="Index" class="btn btn-light rounded-pill px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                        <i class="bi bi-check-lg me-1"></i> Update Task
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

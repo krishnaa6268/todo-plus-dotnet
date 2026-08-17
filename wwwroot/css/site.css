@@ -1,0 +1,86 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif;
+  background-color: #f8fafc !important;
+  color: #1e293b;
+  margin-bottom: 60px;
+}
+
+/* Custom Card Styling */
+.task-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-left: 4px solid #cbd5e1 !important;
+}
+
+.task-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06) !important;
+}
+
+.bg-light-completed {
+  background-color: #f1f5f9 !important;
+  border-left-color: #10b981 !important;
+}
+
+/* Checkbox Hover Effect */
+.hover-check:hover {
+  color: #10b981 !important;
+  transform: scale(1.1);
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+/* Title Hover Effect */
+.hover-title:hover {
+  color: #0284c7 !important;
+  text-decoration: underline !important;
+}
+
+/* Custom Text Gradient */
+.text-gradient {
+  background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Utility Classes */
+.bg-primary-subtle {
+  background-color: #e0f2fe !important;
+}
+
+.bg-warning-subtle {
+  background-color: #fef3c7 !important;
+}
+
+.bg-success-subtle {
+  background-color: #d1fae5 !important;
+}
+
+.bg-danger-subtle {
+  background-color: #fee2e2 !important;
+}
+
+.bg-secondary-subtle {
+  background-color: #f1f5f9 !important;
+}
+
+.bg-info-subtle {
+  background-color: #e0f2fe !important;
+}
