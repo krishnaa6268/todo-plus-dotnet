@@ -4,9 +4,9 @@
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
-- **🍃 MongoDB Database Integration**:
+- ** MongoDB Database Integration**:
   - Direct connection to MongoDB Atlas Cloud / local MongoDB database named **`todo-csharp`**.
   - Document-based storage in the **`TodoItems`** collection using 24-character BSON ObjectIds.
   - Automatic collection initialization and initial sample dataset seeding on startup.
@@ -22,23 +22,23 @@
   - **Details View**: Comprehensive breakdown card for individual tasks.
   - **Delete**: Safely delete tasks from MongoDB with confirmation dialogs.
 
-- **🔍 Search, Filtering & Sorting**:
+- ** Search, Filtering & Sorting**:
   - Filter by status tabs: `All`, `Active`, `Completed`, `High Priority`, and `Overdue`.
   - Filter tasks by **Category** dropdown (e.g., Work, Personal, Learning).
   - Search tasks by title or description keywords using MongoDB Regex filters.
   - Sort by **Due Date**, **Priority**, **Date Created**, or **Title**.
 
-- **🏷️ Priority & Category Management**:
+- ** Priority & Category Management**:
   - Categorize tasks into custom domains (Work, Personal, Shopping, etc.).
   - Tag tasks with `Low`, `Medium`, or `High` priority levels serialized as strings in BSON documents.
 
-- **🎨 Modern Aesthetic UI**:
+- ** Modern Aesthetic UI**:
   - Built using Bootstrap 5 + Bootstrap Icons.
   - Custom CSS styling with hover animations, priority badges, and glassmorphism elements.
 
 ---
 
-## 🛠️ Technology Stack
+##  Technology Stack
 
 | Component | Technology |
 | :--- | :--- |
@@ -46,6 +46,7 @@
 | **Language** | C# 13 |
 | **Database** | MongoDB (`todo-csharp` database / `TodoItems` collection) |
 | **Driver / SDK** | `MongoDB.Driver` 3.11.0 |
+| **Env Config** | `DotNetEnv` 3.2.0 (`.env` file environment configuration) |
 | **Data Mapping** | BSON Serializers (`BsonId`, `BsonRepresentation`, `BsonDateTimeOptions`) |
 | **Frontend** | Razor Views (`.cshtml`), HTML5, CSS3, JavaScript |
 | **Styling** | Bootstrap 5, Bootstrap Icons |
@@ -53,7 +54,7 @@
 
 ---
 
-## 📂 Project Structure
+##  Project Structure
 
 ```text
 TodoPlus/
@@ -78,15 +79,17 @@ TodoPlus/
 ├── wwwroot/
 │   └── css/
 │       └── site.css             # Custom styling, badges, and card animations
+├── .env                         # Local environment variables (MONGODB_URI, etc. - Git ignored)
+├── .env.example                 # Template for environment configuration
 ├── .gitignore                   # Comprehensive .NET & OS git ignore rules
-├── appsettings.json             # MongoDB connection string and database configuration
+├── appsettings.json             # MongoDB connection configuration defaults
 ├── Program.cs                   # App entry point, DI services, MongoDB setup & routing
 └── TodoPlus.csproj              # Project configuration and NuGet packages
 ```
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 
@@ -95,27 +98,32 @@ Ensure you have the following installed on your machine:
 - Access to a **MongoDB Atlas Cluster** URI or a local MongoDB instance (`mongodb://localhost:27017`).
 - [Git](https://git-scm.com/)
 
-### 📥 Repository Setup
+###  Repository Setup
 
 1. **Clone the Repository**:
    ```bash
    git clone https://github.com/krishnaa6268/todo-plus-dotnet.git
-   cd todo-plus-dotnet/TodoPlus
+   cd todo-plus-dotnet
    ```
 
-2. **⚙️ MongoDB Configuration**:
+2. ** MongoDB & Environment Configuration**:
 
-   Configure your MongoDB Atlas or local connection string in `appsettings.json`:
+   Copy `.env.example` to `.env` or create a `.env` file in the project root:
 
-   ```json
-   {
-     "MongoDbSettings": {
-       "ConnectionString": "mongodb+srv://<username>:<password>@cluster0.cvxptsk.mongodb.net",
-       "DatabaseName": "todo-csharp",
-       "CollectionName": "TodoItems"
-     }
-   }
+   ```bash
+   cp .env.example .env
    ```
+
+   Update your MongoDB connection string in `.env`:
+
+   ```env
+   # MongoDB Connection Settings
+   MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.cvxptsk.mongodb.net
+   MONGODB_DATABASE=todo-csharp
+   MONGODB_COLLECTION=TodoItems
+   ```
+
+   *(The application automatically reads `MONGODB_URI` / `MONGO_URL` from `.env` on startup via `DotNetEnv`, keeping sensitive credentials out of `appsettings.json` and git control).*
 
 3. **Restore Dependencies**:
    ```bash
@@ -137,7 +145,7 @@ Ensure you have the following installed on your machine:
 
 ---
 
-## 🔌 API & Controller Endpoints
+##  API & Controller Endpoints
 
 | HTTP Method | Route | Description |
 | :--- | :--- | :--- |
@@ -152,7 +160,7 @@ Ensure you have the following installed on your machine:
 
 ---
 
-## 🛡️ Database Seeding & Data Model Mapping
+##  Database Seeding & Data Model Mapping
 
 ### BSON Data Annotations
 In `Models/TodoItem.cs`, document fields are mapped to BSON types as follows:
@@ -192,7 +200,7 @@ In `Program.cs` and `MongoDbContext.cs`, the application checks if the `TodoItem
 
 ---
 
-## 📄 License
+##  License
 
 This project is open-source and available under the [MIT License](LICENSE).
 
