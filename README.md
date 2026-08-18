@@ -11,7 +11,7 @@
   - Document-based storage in the **`TodoItems`** collection using 24-character BSON ObjectIds.
   - Automatic collection initialization and initial sample dataset seeding on startup.
 
-- **📊 Interactive Dashboard & KPI Metrics**:
+- ** Interactive Dashboard & KPI Metrics**:
   - Real-time statistics showing **Total**, **Pending**, **Completed**, and **Overdue** tasks.
   - Overall completion percentage progress bar.
 
@@ -54,10 +54,13 @@
 
 ---
 
-##  Project Structure
+## Project Structure
 
 ```text
 TodoPlus/
+├── .github/
+│   └── workflows/
+│       └── azure-deploy.yml     # GitHub Actions workflow for Azure App Service deployment
 ├── Controllers/
 │   ├── HomeController.cs        # Handles default route and error views
 │   └── TodoController.cs        # Handles MongoDB CRUD operations, filters, sorts, and stats
@@ -89,7 +92,7 @@ TodoPlus/
 
 ---
 
-##  Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -98,7 +101,7 @@ Ensure you have the following installed on your machine:
 - Access to a **MongoDB Atlas Cluster** URI or a local MongoDB instance (`mongodb://localhost:27017`).
 - [Git](https://git-scm.com/)
 
-###  Repository Setup
+### Repository Setup
 
 1. **Clone the Repository**:
    ```bash
@@ -106,7 +109,7 @@ Ensure you have the following installed on your machine:
    cd todo-plus-dotnet
    ```
 
-2. ** MongoDB & Environment Configuration**:
+2. **⚙️ MongoDB & Environment Configuration**:
 
    Copy `.env.example` to `.env` or create a `.env` file in the project root:
 
@@ -145,7 +148,7 @@ Ensure you have the following installed on your machine:
 
 ---
 
-##  API & Controller Endpoints
+## 🔌 API & Controller Endpoints
 
 | HTTP Method | Route | Description |
 | :--- | :--- | :--- |
@@ -160,7 +163,7 @@ Ensure you have the following installed on your machine:
 
 ---
 
-##  Database Seeding & Data Model Mapping
+## Database Seeding & Data Model Mapping
 
 ### BSON Data Annotations
 In `Models/TodoItem.cs`, document fields are mapped to BSON types as follows:
@@ -200,7 +203,26 @@ In `Program.cs` and `MongoDbContext.cs`, the application checks if the `TodoItem
 
 ---
 
+## CI/CD & Azure Deployment
+
+Automated Continuous Integration and Continuous Deployment (CI/CD) is configured using **GitHub Actions** via `.github/workflows/azure-deploy.yml`.
+
+### Workflow Pipeline Details:
+- **Trigger**: Pushes to `main` branch.
+- **Runner**: `ubuntu-latest` with `.NET 10.0 SDK`.
+- **Deployment Target**: Azure App Service (`todo-plus-krishna`).
+- **Steps**:
+  1. Source checkout via `actions/checkout@v4`.
+  2. Setup .NET via `actions/setup-dotnet@v4`.
+  3. Package restore & Release build (`dotnet build --configuration Release`).
+  4. Publish output binaries (`dotnet publish`).
+  5. Authenticate via Azure Service Principal (`azure/login@v2`).
+  6. Deploy to Azure Web App via `azure/webapps-deploy@v3`.
+
+---
+
 ##  License
 
 This project is open-source and available under the [MIT License](LICENSE).
+
 
