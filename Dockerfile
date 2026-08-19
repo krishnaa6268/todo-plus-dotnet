@@ -1,20 +1,27 @@
-# Build Stage
+# Build Stage - m1
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+
 WORKDIR /src
 
-# Copy csproj and restore dependencies
-COPY ["TodoPlus.csproj", "./"]
-RUN dotnet restore "TodoPlus.csproj"
-
-# Copy source files and publish app
+# Copy project files
 COPY . .
-RUN dotnet publish "TodoPlus.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# Final Runtime Stage
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+# Restore dependencies
+RUN dotnet restore
+
+# Publish application
+RUN dotnet publish -c Release -o /app/publish
+
+# Runtime Stage - m2
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
+
 WORKDIR /app
-EXPOSE 8080
-ENV ASPNETCORE_URLS=http://+:8080
 
 COPY --from=build /app/publish .
+
+# Azure App Service passes PORT as 8080
+ENV ASPNETCORE_URLS=http://+:8080
+
+EXPOSE 8080
+
 ENTRYPOINT ["dotnet", "TodoPlus.dll"]

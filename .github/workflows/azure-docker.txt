@@ -1,0 +1,46 @@
+name: Docker CI/CD to Azure
+
+#not setup properly - continue with the code development.
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  docker-build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build & Push Multi-Platform Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            krishnamdz/todoplus:latest
+            krishnamdz/todoplus:${{ github.sha }}
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Restart Azure Web App
+        run: |
+          az webapp restart \
+            --resource-group todo-plus-rg \
+            --name todo-plus-docker
