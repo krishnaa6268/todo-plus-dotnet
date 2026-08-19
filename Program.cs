@@ -1,5 +1,9 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using TodoPlus.Data;
 using TodoPlus.Models;
+using TodoPlus.Services;
 
 // Load environment variables from .env file if it exists
 if (File.Exists(".env"))
@@ -45,6 +49,78 @@ builder.Services.Configure<MongoDbSettings>(options =>
 });
 
 builder.Services.AddSingleton<MongoDbContext>();
+builder.Services.AddSingleton<IJwtService, JwtService>();
+
+// Configure JWT Authentication
+var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
+    ?? Environment.GetEnvironmentVariable("JWT_SECRET")
+    ?? builder.Configuration["JwtSettings:SecretKey"]
+    ?? "SuperSecretTodoPlusJwtSigningKey2026WithAtLeast256BitsOfEntropy!!";
+
+var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER")
+    ?? builder.Configuration["JwtSettings:Issuer"] 
+    ?? "TodoPlusApp";
+
+var audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE")
+    ?? builder.Configuration["JwtSettings:Audience"] 
+    ?? "TodoPlusUsers";
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+        ValidateIssuer = true,
+        ValidIssuer = issuer,
+        ValidateAudience = true,
+        ValidAudience = audience,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.FromMinutes(5)
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            string? token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+            if (string.IsNullOrEmpty(token) && context.Request.Cookies.ContainsKey("JwtToken"))
+            {
+                token = context.Request.Cookies["JwtToken"];
+            }
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                context.Token = token;
+            }
+            return Task.CompletedTask;
+        },
+        OnChallenge = context =>
+        {
+            if (!context.Response.HasStarted && !context.Request.Path.StartsWithSegments("/api"))
+            {
+                context.HandleResponse();
+                var returnUrl = context.Request.Path + context.Request.QueryString;
+                context.Response.Redirect($"/Account/Login?returnUrl={Uri.EscapeDataString(returnUrl)}");
+            }
+            return Task.CompletedTask;
+        },
+        OnForbidden = context =>
+        {
+            if (!context.Response.HasStarted && !context.Request.Path.StartsWithSegments("/api"))
+            {
+                context.Response.Redirect("/Account/AccessDenied");
+            }
+            return Task.CompletedTask;
+        }
+    };
+});
 
 var app = builder.Build();
 
@@ -65,6 +141,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();

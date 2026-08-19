@@ -5,58 +5,59 @@
     ViewData["Title"] = "Create Task";
 }
 
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+<div class="row justify-content-center py-3">
+    <div class="col-lg-7">
+        <div class="card glass-card p-4 p-md-5">
             <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
                 <div>
-                    <h2 class="fw-bold mb-1 text-primary"><i class="bi bi-plus-circle me-2"></i>Create New Task</h2>
-                    <p class="text-secondary small mb-0">Fill in the details to add a task to your todo list.</p>
+                    <h3 class="fw-bold mb-1 text-dark"><i class="bi bi-plus-circle-fill text-indigo me-2" style="color: #4f46e5;"></i>Create Task</h3>
+                    <p class="text-muted small mb-0">Fill in the details to add a task to your personal list</p>
                 </div>
                 <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-3">
-                    <i class="bi bi-arrow-left me-1"></i> Back to List
+                    <i class="bi bi-arrow-left me-1"></i> Back
                 </a>
             </div>
 
             <form asp-action="Create" method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
 
                 <div class="mb-3">
-                    <label asp-for="Title" class="form-label fw-semibold"></label>
-                    <input asp-for="Title" class="form-control form-control-lg bg-light" placeholder="e.g., Prepare Q3 Financial Report" autofocus />
+                    <label asp-for="Title" class="form-label fw-semibold text-secondary small"></label>
+                    <input asp-for="Title" class="form-control form-control-custom" placeholder="e.g., Prepare Q3 Financial Report" autofocus required />
                     <span asp-validation-for="Title" class="text-danger small"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="Description" class="form-label fw-semibold"></label>
-                    <textarea asp-for="Description" class="form-control bg-light" rows="3" placeholder="Add additional context or notes about this task..."></textarea>
+                    <label asp-for="Description" class="form-label fw-semibold text-secondary small"></label>
+                    <textarea asp-for="Description" class="form-control form-control-custom" rows="3" placeholder="Add details or notes..."></textarea>
                     <span asp-validation-for="Description" class="text-danger small"></span>
                 </div>
 
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
-                        <label asp-for="Priority" class="form-label fw-semibold"></label>
-                        <select asp-for="Priority" asp-items="Html.GetEnumSelectList<Priority>()" class="form-select bg-light">
+                        <label asp-for="Priority" class="form-label fw-semibold text-secondary small"></label>
+                        <select asp-for="Priority" asp-items="Html.GetEnumSelectList<Priority>()" class="form-select form-control-custom">
                         </select>
                         <span asp-validation-for="Priority" class="text-danger small"></span>
                     </div>
 
                     <div class="col-md-6">
-                        <label asp-for="Category" class="form-label fw-semibold"></label>
-                        <input asp-for="Category" class="form-control bg-light" placeholder="e.g., Work, Personal, Urgent..." />
+                        <label asp-for="Category" class="form-label fw-semibold text-secondary small"></label>
+                        <input asp-for="Category" class="form-control form-control-custom" placeholder="e.g., Work, Personal, Urgent..." />
                         <span asp-validation-for="Category" class="text-danger small"></span>
                     </div>
                 </div>
 
                 <div class="mb-4">
-                    <label asp-for="DueDate" class="form-label fw-semibold"></label>
-                    <input asp-for="DueDate" type="date" class="form-control bg-light" />
+                    <label asp-for="DueDate" class="form-label fw-semibold text-secondary small"></label>
+                    <input asp-for="DueDate" type="date" class="form-control form-control-custom" />
                     <span asp-validation-for="DueDate" class="text-danger small"></span>
                 </div>
 
                 <div class="d-flex gap-2 justify-content-end pt-3 border-top">
                     <a asp-action="Index" class="btn btn-light rounded-pill px-4">Cancel</a>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                    <button type="submit" class="btn text-white rounded-pill px-4 shadow-sm fw-bold" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); border: none;">
                         <i class="bi bi-check-lg me-1"></i> Save Task
                     </button>
                 </div>
@@ -66,5 +67,5 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <partial name="_ValidationScriptsPartial" />
 }

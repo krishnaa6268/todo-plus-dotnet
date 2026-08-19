@@ -1,0 +1,79 @@
+@model TodoPlus.Models.LoginViewModel
+@{
+    ViewData["Title"] = "Log In";
+}
+
+<div class="row justify-content-center py-4">
+    <div class="col-md-6 col-lg-5">
+        <div class="card auth-card p-4 p-md-5">
+            <div class="text-center mb-4">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle p-3 mb-2" style="background: rgba(79, 70, 229, 0.1); width: 64px; height: 64px;">
+                    <i class="bi bi-shield-lock-fill text-indigo fs-2" style="color: #4f46e5;"></i>
+                </div>
+                <h2 class="fw-extrabold text-dark mb-1">Welcome Back</h2>
+                <p class="text-muted small">Log in to manage your user-scoped todo list</p>
+            </div>
+
+            <form asp-action="Login" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="ReturnUrl" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+
+                <div class="mb-3">
+                    <label asp-for="EmailOrUsername" class="form-label fw-semibold text-secondary small"></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-person"></i></span>
+                        <input asp-for="EmailOrUsername" class="form-control form-control-custom border-start-0" placeholder="Enter Email Id" id="loginInput" required />
+                    </div>
+                    <span asp-validation-for="EmailOrUsername" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label fw-semibold text-secondary small"></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-key"></i></span>
+                        <input asp-for="Password" class="form-control form-control-custom border-start-0" placeholder="Enter Password" id="passwordInput" required />
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="form-check">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label small text-muted"></label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn text-white w-100 py-2-5 fw-bold rounded-3 shadow-sm mb-3" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); border: none;">
+                    <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+                </button>
+            </form>
+
+            <!-- <div class="border-top pt-3 mt-2">
+                <div class="text-center text-muted small mb-2 fw-semibold">Quick Demo Login</div>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-quick-demo btn-sm flex-fill py-2" onclick="fillCredentials('admin@todoplus.com', 'Admin123!')">
+                        <i class="bi bi-shield-check text-primary me-1"></i> Admin Demo
+                    </button>
+                    <button type="button" class="btn btn-quick-demo btn-sm flex-fill py-2" onclick="fillCredentials('user@todoplus.com', 'User123!')">
+                        <i class="bi bi-person-check text-success me-1"></i> Standard User Demo
+                    </button>
+                </div>
+            </div> -->
+
+            <div class="text-center mt-4 pt-2 border-top">
+                <p class="text-muted small mb-0">Don't have an account? <a asp-action="Register" class="fw-bold text-indigo text-decoration-none">Create an Account</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function fillCredentials(email, password) {
+            document.getElementById('loginInput').value = email;
+            document.getElementById('passwordInput').value = password;
+        }
+    </script>
+}

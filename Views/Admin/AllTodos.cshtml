@@ -1,0 +1,132 @@
+@model IEnumerable<TodoPlus.Models.TodoItem>
+@{
+    ViewData["Title"] = "Admin - All System Tasks";
+    var users = ViewData["UsersList"] as List<TodoPlus.Models.User> ?? new List<TodoPlus.Models.User>();
+    var selectedUserId = ViewData["SelectedUserId"] as string;
+    var currentFilter = ViewData["CurrentFilter"] as string ?? "all";
+    var currentSearch = ViewData["CurrentSearch"] as string;
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2">
+            <h2 class="fw-extrabold text-dark mb-0">System All Tasks (Admin View)</h2>
+            <span class="badge bg-danger rounded-pill px-3 py-1">Admin Audit</span>
+        </div>
+        <p class="text-muted mb-0 small">Overview of all todo tasks across every registered user in the database</p>
+    </div>
+    <div>
+        <a asp-action="Users" class="btn btn-outline-secondary rounded-pill px-3">
+            <i class="bi bi-people me-1"></i> Back to User Directory
+        </a>
+    </div>
+</div>
+
+<!-- Filters Bar -->
+<div class="card glass-card p-3 mb-4">
+    <form method="get" asp-action="AllTodos" class="row g-2 align-items-center">
+        <div class="col-md-4">
+            <label class="form-label small fw-semibold text-muted mb-1">Filter by User</label>
+            <select name="userId" class="form-select form-select-custom" onchange="this.form.submit()">
+                <option value="">-- All Users (@users.Count) --</option>
+                @foreach (var user in users)
+                {
+                    if (user.Id == selectedUserId)
+                    {
+                        <option value="@user.Id" selected="selected">@user.Username (@user.Email)</option>
+                    }
+                    else
+                    {
+                        <option value="@user.Id">@user.Username (@user.Email)</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-5">
+            <label class="form-label small fw-semibold text-muted mb-1">Search Tasks</label>
+            <input type="text" name="search" value="@currentSearch" class="form-control form-control-custom" placeholder="Title, description, or owner..." />
+        </div>
+        <div class="col-md-3 d-flex align-items-end gap-2" style="height: 65px;">
+            <button type="submit" class="btn btn-primary w-100 py-2 rounded-3">
+                <i class="bi bi-search me-1"></i> Search
+            </button>
+            <a asp-action="AllTodos" class="btn btn-outline-secondary py-2 rounded-3">Reset</a>
+        </div>
+    </form>
+</div>
+
+<!-- All Todos List Card -->
+<div class="card glass-card p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0 text-dark">
+            <i class="bi bi-list-task me-2 text-indigo"></i> Task Records Found (@Model.Count())
+        </h5>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary"></i>
+            No task items match the selected filters.
+        </div>
+    }
+    else
+    {
+        <div class="d-flex flex-column gap-3">
+            @foreach (var item in Model)
+            {
+                <div class="task-item-card p-3 @(item.IsCompleted ? "completed" : $"priority-{item.Priority}")">
+                    <div class="d-flex align-items-start justify-content-between gap-3">
+                        <div class="d-flex align-items-start gap-3 flex-grow-1">
+                            <form asp-controller="Todo" asp-action="ToggleComplete" method="post" class="mt-1">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                                <button type="submit" class="btn p-0 border-0 bg-transparent text-secondary hover-check" title="Toggle status">
+                                    <i class="bi @(item.IsCompleted ? "bi-check-circle-fill text-success" : "bi-circle") fs-4"></i>
+                                </button>
+                            </form>
+                            <div>
+                                <div class="fw-bold text-dark task-title fs-5 mb-1">@item.Title</div>
+                                @if (!string.IsNullOrEmpty(item.Description))
+                                {
+                                    <p class="text-secondary small mb-2">@item.Description</p>
+                                }
+                                <div class="d-flex flex-wrap align-items-center gap-2 small">
+                                    <span class="badge bg-dark bg-opacity-10 text-dark fw-bold rounded-pill px-2-5 py-1">
+                                        <i class="bi bi-person me-1"></i> Owner: @(item.OwnerUsername ?? "Unknown User")
+                                    </span>
+                                    <span class="badge bg-secondary-subtle text-secondary rounded-pill px-2-5 py-1">
+                                        <i class="bi bi-tag me-1"></i> @item.Category
+                                    </span>
+                                    <span class="badge @(item.Priority == TodoPlus.Models.Priority.High ? "bg-danger" : item.Priority == TodoPlus.Models.Priority.Medium ? "bg-warning text-dark" : "bg-info") rounded-pill px-2-5 py-1">
+                                        @item.Priority Priority
+                                    </span>
+                                    @if (item.DueDate.HasValue)
+                                    {
+                                        <span class="text-muted small ms-1">
+                                            <i class="bi bi-calendar-event me-1"></i> Due: @item.DueDate.Value.ToString("MMM dd, yyyy")
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-2">
+                            <a asp-controller="Todo" asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary rounded-circle" title="View Details">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <form asp-controller="Todo" asp-action="Delete" method="post" onsubmit="return confirm('Delete this task?');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle" title="Delete Task">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

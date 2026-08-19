@@ -1,0 +1,190 @@
+@model IEnumerable<TodoPlus.Models.UserRecordViewModel>
+@{
+    ViewData["Title"] = "Admin - Registered Users Records";
+    var totalUsers = ViewData["TotalUsersCount"] ?? 0;
+    var adminCount = ViewData["AdminCount"] ?? 0;
+    var userCount = ViewData["StandardUserCount"] ?? 0;
+    var totalTasks = ViewData["TotalSystemTasks"] ?? 0;
+    var currentSearch = ViewData["CurrentSearch"] as string;
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2">
+            <h2 class="fw-extrabold text-dark mb-0">Admin Control Center</h2>
+            <span class="badge bg-danger rounded-pill px-3 py-1">Admin Only</span>
+        </div>
+        <p class="text-muted mb-0 small">View and manage all registered user accounts and task distribution records</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-controller="Admin" asp-action="AllTodos" class="btn btn-outline-primary rounded-pill px-3">
+            <i class="bi bi-list-stars me-1"></i> View All System Tasks
+        </a>
+    </div>
+</div>
+
+<!-- System Stats Overview Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="text-muted small fw-semibold text-uppercase">Total Users</div>
+                    <h3 class="fw-bold mb-0 text-dark">@totalUsers</h3>
+                </div>
+                <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="text-muted small fw-semibold text-uppercase">Admins</div>
+                    <h3 class="fw-bold mb-0 text-info">@adminCount</h3>
+                </div>
+                <div class="stat-icon bg-info bg-opacity-10 text-info">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="text-muted small fw-semibold text-uppercase">Standard Users</div>
+                    <h3 class="fw-bold mb-0 text-secondary">@userCount</h3>
+                </div>
+                <div class="stat-icon bg-secondary bg-opacity-10 text-secondary">
+                    <i class="bi bi-person"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="text-muted small fw-semibold text-uppercase">Total Tasks Created</div>
+                    <h3 class="fw-bold mb-0 text-success">@totalTasks</h3>
+                </div>
+                <div class="stat-icon bg-success bg-opacity-10 text-success">
+                    <i class="bi bi-check2-all"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search & Filter Bar -->
+<div class="card glass-card mb-4 p-3">
+    <form method="get" asp-action="Users" class="row g-2 align-items-center">
+        <div class="col-md-8 col-lg-9">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                <input type="text" name="search" value="@currentSearch" class="form-control border-start-0 ps-0" placeholder="Search by username or email..." />
+                @if (!string.IsNullOrEmpty(currentSearch))
+                {
+                    <a asp-action="Users" class="btn btn-outline-secondary">Clear</a>
+                }
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-3">
+            <button type="submit" class="btn btn-indigo text-white w-100 fw-semibold" style="background: #4f46e5;">
+                <i class="bi bi-funnel me-1"></i> Filter Users
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Registered Users Table -->
+<div class="card glass-card overflow-hidden">
+    <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+        <h5 class="fw-bold mb-0 text-dark">
+            <i class="bi bi-table me-2 text-primary"></i> Registered Users Directory (@Model.Count())
+        </h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light text-muted small text-uppercase">
+                <tr>
+                    <th class="ps-4 py-3">User</th>
+                    <th class="py-3">Email Address</th>
+                    <th class="py-3">Role</th>
+                    <th class="py-3 text-center">Tasks (Total / Done / Pending)</th>
+                    <th class="py-3">Registered On</th>
+                    <th class="text-end pe-4 py-3">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-person-x fs-1 d-block mb-2 text-secondary"></i>
+                            No registered user accounts found matching your search.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var user in Model)
+                    {
+                        var initial = string.IsNullOrEmpty(user.Username) ? "U" : user.Username.Substring(0, 1).ToUpper();
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="avatar-circle avatar-circle-lg">@initial</div>
+                                    <div>
+                                        <div class="fw-bold text-dark">@user.Username</div>
+                                        <div class="text-muted font-monospace" style="font-size: 0.75rem;">ID: @user.Id</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="fw-medium text-secondary">@user.Email</span>
+                            </td>
+                            <td>
+                                <span class="badge @(user.Role == "Admin" ? "badge-role-admin" : "badge-role-user")">
+                                    <i class="bi @(user.Role == "Admin" ? "bi-shield-check" : "bi-person") me-1"></i> @user.Role
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-primary rounded-pill me-1">@user.TotalTasks Total</span>
+                                <span class="badge bg-success rounded-pill me-1">@user.CompletedTasks Done</span>
+                                <span class="badge bg-warning text-dark rounded-pill">@user.PendingTasks Pending</span>
+                            </td>
+                            <td>
+                                <span class="text-muted small">@user.CreatedAt.ToString("MMM dd, yyyy HH:mm")</span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="d-flex justify-content-end gap-1">
+                                    <!-- Toggle Role Form -->
+                                    <form asp-action="ToggleRole" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="userId" value="@user.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-2-5" title="Toggle Admin/User Role">
+                                            <i class="bi bi-arrow-repeat me-1"></i> Switch Role
+                                        </button>
+                                    </form>
+
+                                    <!-- Delete User Form -->
+                                    <form asp-action="DeleteUser" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete user @user.Username and all their tasks?');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="userId" value="@user.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2-5" title="Delete User Account">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

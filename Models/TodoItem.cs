@@ -10,6 +10,14 @@ namespace TodoPlus.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
 
+        [BsonRepresentation(BsonType.ObjectId)]
+        [Display(Name = "Owner User ID")]
+        public string? UserId { get; set; }
+
+        [BsonIgnoreIfNull]
+        [Display(Name = "Owner Username")]
+        public string? OwnerUsername { get; set; }
+
         [Required(ErrorMessage = "Task title is required.")]
         [StringLength(120, ErrorMessage = "Title cannot exceed 120 characters.")]
         [Display(Name = "Task Title")]

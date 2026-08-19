@@ -1,56 +1,94 @@
-# TodoPlus - ASP.NET Core MVC Todo Application with MongoDB 📝
+# TodoPlus - ASP.NET Core MVC Todo Application with JWT Auth & Admin Dashboard
 
-**TodoPlus** (TaskFlow) is a modern, responsive, and feature-rich Todo Application built with **ASP.NET Core 10.0 MVC** and **MongoDB** (supporting both MongoDB Atlas Cloud & local MongoDB instances) via the official **`MongoDB.Driver`**.
+**TodoPlus** is a modern, responsive, and feature-rich Todo Application built with **ASP.NET Core 10.0 MVC**, **JWT Authentication**, and **MongoDB** (supporting both MongoDB Atlas Cloud & local MongoDB instances) via the official **`MongoDB.Driver`**.
 
 ---
 
 ## Key Features
 
-- ** MongoDB Database Integration**:
-  - Direct connection to MongoDB Atlas Cloud / local MongoDB database named **`todo-csharp`**.
-  - Document-based storage in the **`TodoItems`** collection using 24-character BSON ObjectIds.
-  - Automatic collection initialization and initial sample dataset seeding on startup.
-
-- ** Interactive Dashboard & KPI Metrics**:
-  - Real-time statistics showing **Total**, **Pending**, **Completed**, and **Overdue** tasks.
-  - Overall completion percentage progress bar.
-
-- **⚡ Complete Task Lifecycle (CRUD)**:
-  - **Create**: Add new tasks with title, description, due date, category, and priority level.
-  - **Quick Toggle**: Rapid one-click completion status toggle from the task list.
-  - **Edit & Update**: Modify task details, dates, categories, and completion status.
-  - **Details View**: Comprehensive breakdown card for individual tasks.
-  - **Delete**: Safely delete tasks from MongoDB with confirmation dialogs.
-
-- ** Search, Filtering & Sorting**:
-  - Filter by status tabs: `All`, `Active`, `Completed`, `High Priority`, and `Overdue`.
-  - Filter tasks by **Category** dropdown (e.g., Work, Personal, Learning).
-  - Search tasks by title or description keywords using MongoDB Regex filters.
-  - Sort by **Due Date**, **Priority**, **Date Created**, or **Title**.
-
-- ** Priority & Category Management**:
-  - Categorize tasks into custom domains (Work, Personal, Shopping, etc.).
-  - Tag tasks with `Low`, `Medium`, or `High` priority levels serialized as strings in BSON documents.
-
-- ** Modern Aesthetic UI**:
-  - Built using Bootstrap 5 + Bootstrap Icons.
-  - Custom CSS styling with hover animations, priority badges, and glassmorphism elements.
+## 1. JWT Authentication & Security
+- **Secure Sign Up & Log In**: User authentication using **JSON Web Tokens (JWT)** and **BCrypt** password hashing.
+- **Dual Token Handling**: Works out-of-the-box for both **Web Browsers** (via HttpOnly `JwtToken` cookie) and **REST API Clients / Mobile Apps** (via `Authorization: Bearer <token>` header).
+- **Default Seed Accounts**:
+  - **Admin Account**: `admin**@todoplus.com` / `********` (Role: `Admin`)
+  - **Demo User Account**: `user**@todoplus.com` / `********` (Role: `User`)
 
 ---
 
-##  Technology Stack
+### 2. User-Scoped Todo Lists (Strict Privacy & Data Scoping)
+- **Isolated User Workspaces**: Every user sees, creates, and manages **only their own tasks**.
+- **Access Control & Authorization**: Strict authorization checks enforce that regular users cannot view, edit, or delete another user's task by ID (returns `403 Forbidden`).
+- **Productivity Tracker**: Real-time progress bar, completion stats, priority badges (`Low`, `Medium`, `High`), categories, and due date tracking.
+- **Full CRUD Operations**: Create, Edit, Toggle Completion, View Details, and Delete tasks.
+- **Search & Filtering**: Search by title/description, filter by status (`All`, `Active`, `Completed`, `High Priority`, `Overdue`), filter by category, and sort dynamically.
+
+---
+
+### 3. Admin Control Center (User Records & System Audit)
+- **Registered User Directory (`/Admin/Users`)**: Admins can view complete records for all registered users:
+  - User ID, Username, Email Address, Role (`Admin` / `User`), and Registration Date.
+  - Live task breakdown: Total Tasks, Completed Tasks, and Pending Tasks per user.
+- **Admin Management Actions**:
+  - **Live Search**: Search users by username or email.
+  - **Switch Role**: Toggle user permissions between `User` and `Admin` with 1 click.
+  - **Delete Account**: Remove user account and automatically clean up associated tasks.
+- **System Task Audit (`/Admin/AllTodos`)**: Admins can audit all tasks across all users in the system or filter tasks by specific user.
+
+---
+
+### 4. Modern Glassmorphism UI
+- **Responsive Layout**: Designed with modern CSS variables, vibrant gradients, glassmorphism cards, and Bootstrap Icons.
+- **Dynamic Header & Badges**: Navbar automatically displays current user username, avatar circle, role badge (`Admin` or `User`), and Admin navigation links.
+- **Toast Alerts**: Non-intrusive notification popups for login, logout, task actions, and permission errors.
+
+---
+
+## Technology Stack
 
 | Component | Technology |
 | :--- | :--- |
 | **Framework** | ASP.NET Core 10.0 MVC |
 | **Language** | C# 13 |
-| **Database** | MongoDB (`todo-csharp` database / `TodoItems` collection) |
-| **Driver / SDK** | `MongoDB.Driver` 3.11.0 |
-| **Env Config** | `DotNetEnv` 3.2.0 (`.env` file environment configuration) |
+| **Authentication** | JWT (JSON Web Token) via `Microsoft.AspNetCore.Authentication.JwtBearer` |
+| **Password Hashing** | `BCrypt.Net-Next` |
+| **Database** | MongoDB (`todo-csharp` database / `TodoItems` & `Users` collections) |
+| **Database Driver** | `MongoDB.Driver` 3.11.0 |
+| **Environment Configuration** | `DotNetEnv` 3.2.0 (`.env` file) |
 | **Data Mapping** | BSON Serializers (`BsonId`, `BsonRepresentation`, `BsonDateTimeOptions`) |
 | **Frontend** | Razor Views (`.cshtml`), HTML5, CSS3, JavaScript |
-| **Styling** | Bootstrap 5, Bootstrap Icons |
-| **Version Control** | Git & GitHub (`main` branch) |
+| **Styling** | Bootstrap 5, Bootstrap Icons, Custom Glassmorphism CSS |
+
+---
+
+## Environment Variables (`.env`)
+
+Environment variables are loaded automatically on application startup from the `.env` file in the root directory.
+
+### `.env` File Example:
+
+```env
+# --- MongoDB Connection Settings ---
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net
+MONGODB_DATABASE=todo-csharp
+MONGODB_COLLECTION=TodoItems
+
+# --- JWT Authentication Settings ---
+JWT_SECRET_KEY=SuperSecretTodoPlusJwtSigningKey2026WithAtLeast256BitsOfEntropy!!
+JWT_ISSUER=TodoPlusApp
+JWT_AUDIENCE=TodoPlusUsers
+JWT_EXPIRATION_MINUTES=1440
+```
+
+---
+
+## REST API Endpoints
+
+In addition to MVC Razor Views, **TodoPlus** provides RESTful API endpoints for authentication:
+
+| Method | Endpoint | Description | Request Body / Header |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/auth/login` | Authenticates user & returns JWT JSON | `{ "emailOrUsername": "...", "password": "..." }` |
+| `POST` | `/api/auth/register` | Registers user & returns JWT JSON | `{ "username": "...", "email": "...", "password": "...", "confirmPassword": "..." }` |
 
 ---
 
@@ -58,171 +96,66 @@
 
 ```text
 TodoPlus/
-├── .github/
-│   └── workflows/
-│       └── azure-deploy.yml     # GitHub Actions workflow for Azure App Service deployment
 ├── Controllers/
-│   ├── HomeController.cs        # Handles default route and error views
-│   └── TodoController.cs        # Handles MongoDB CRUD operations, filters, sorts, and stats
+│   ├── AccountController.cs    # Login, Signup, Logout, and REST API auth endpoints
+│   ├── AdminController.cs      # Admin panel for user records directory & task audit
+│   ├── HomeController.cs       # Default route and error page handler
+│   └── TodoController.cs       # User-scoped task CRUD, filtering, search & sorting
 ├── Data/
-│   └── MongoDbContext.cs        # Encapsulates IMongoDatabase, IMongoCollection, and seed logic
+│   └── MongoDbContext.cs       # MongoDB collections, unique indexes & seed data
 ├── Models/
-│   ├── ErrorViewModel.cs        # Error presentation model
-│   ├── MongoDbSettings.cs       # Strongly-typed configuration class for MongoDB options
-│   ├── Priority.cs              # Priority Enum (Low, Medium, High)
-│   └── TodoItem.cs              # Todo model with BSON attributes (BsonId, BsonRepresentation)
+│   ├── AuthViewModels.cs       # Login, Register, JWT Response, and Admin User view models
+│   ├── ErrorViewModel.cs       # Error model
+│   ├── MongoDbSettings.cs      # MongoDB configuration options
+│   ├── Priority.cs             # Priority enum (Low, Medium, High)
+│   ├── TodoItem.cs             # Task model with UserId & OwnerUsername mapping
+│   └── User.cs                 # User model with Roles ("Admin", "User")
+├── Services/
+│   └── JwtService.cs           # IJwtService for generating & validating JWT tokens
 ├── Views/
+│   ├── Account/
+│   │   ├── AccessDenied.cshtml # Unauthorized Admin access view
+│   │   ├── Login.cshtml        # Login view with quick demo fill buttons
+│   │   └── Register.cshtml     # Registration view
+│   ├── Admin/
+│   │   ├── AllTodos.cshtml     # System-wide task audit view for Admins
+│   │   └── Users.cshtml        # User records management table & metrics
 │   ├── Shared/
-│   │   └── _Layout.cshtml       # Main layout template with navbar and styling links
+│   │   └── _Layout.cshtml      # Site layout with navbar, user avatar, and toasts
 │   └── Todo/
-│       ├── Index.cshtml         # Dashboard view with KPI cards, search, filters & task list
-│       ├── Create.cshtml        # Task creation form
-│       ├── Edit.cshtml          # Task update form
-│       └── Details.cshtml       # Single task details view card
+│       ├── Create.cshtml       # Task creation form
+│       ├── Details.cshtml      # Single task view card
+│       ├── Edit.cshtml         # Task update form
+│       └── Index.cshtml        # User dashboard with progress bar & task cards
 ├── wwwroot/
 │   └── css/
-│       └── site.css             # Custom styling, badges, and card animations
-├── .env                         # Local environment variables (MONGODB_URI, etc. - Git ignored)
-├── .env.example                 # Template for environment configuration
-├── .gitignore                   # Comprehensive .NET & OS git ignore rules
-├── appsettings.json             # MongoDB connection configuration defaults
-├── Program.cs                   # App entry point, DI services, MongoDB setup & routing
-└── TodoPlus.csproj              # Project configuration and NuGet packages
+│       └── site.css            # Modern glassmorphism CSS theme & custom styling
+├── .env                        # Active environment variables (Git ignored)
+├── .env.example                # Template for environment configuration
+├── Program.cs                  # Entry point, JWT Bearer middleware & DI services
+└── TodoPlus.csproj             # .NET 10 project file & NuGet dependencies
 ```
 
 ---
 
-## Getting Started
-
-### Prerequisites
-
-Ensure you have the following installed on your machine:
-- [.NET 10 SDK](https://dotnet.microsoft.com/download) (or .NET 8/9+ SDK)
-- Access to a **MongoDB Atlas Cluster** URI or a local MongoDB instance (`mongodb://localhost:27017`).
-- [Git](https://git-scm.com/)
-
-### Repository Setup
+## How to Run Locally
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/krishnaa6268/todo-plus-dotnet.git
+   git clone https://github.com/your-username/todo-plus-dotnet.git
    cd todo-plus-dotnet
    ```
 
-2. **⚙️ MongoDB & Environment Configuration**:
-
-   Copy `.env.example` to `.env` or create a `.env` file in the project root:
-
+2. **Configure Environment Variables**:
+   Copy `.env.example` to `.env` and set your MongoDB URI and JWT Secret Key:
    ```bash
    cp .env.example .env
    ```
 
-   Update your MongoDB connection string in `.env`:
-
-   ```env
-   # MongoDB Connection Settings
-   MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.cvxptsk.mongodb.net
-   MONGODB_DATABASE=todo-csharp
-   MONGODB_COLLECTION=TodoItems
-   ```
-
-   *(The application automatically reads `MONGODB_URI` / `MONGO_URL` from `.env` on startup via `DotNetEnv`, keeping sensitive credentials out of `appsettings.json` and git control).*
-
-3. **Restore Dependencies**:
-   ```bash
-   dotnet restore
-   ```
-
-4. **Build the Project**:
-   ```bash
-   dotnet build
-   ```
-
-5. **Run the Application**:
+3. **Run the Application**:
    ```bash
    dotnet run
    ```
 
-6. **Open in Browser**:
-   Navigate to `http://localhost:5270` in your web browser.
-
----
-
-## 🔌 API & Controller Endpoints
-
-| HTTP Method | Route | Description |
-| :--- | :--- | :--- |
-| `GET` | `/` or `/Todo` | Task Dashboard with filtering, searching, and sorting |
-| `GET` | `/Todo/Create` | Render Create Task form |
-| `POST` | `/Todo/Create` | Submit and save new task to MongoDB |
-| `GET` | `/Todo/Edit/{id}` | Render Edit Task form for BSON ObjectId `id` |
-| `POST` | `/Todo/Edit/{id}` | Update existing task document in MongoDB |
-| `GET` | `/Todo/Details/{id}` | View details for a single task |
-| `POST` | `/Todo/ToggleComplete/{id}`| Toggle task completion status in MongoDB |
-| `POST` | `/Todo/Delete/{id}` | Delete a task document from MongoDB |
-
----
-
-## Database Seeding & Data Model Mapping
-
-### BSON Data Annotations
-In `Models/TodoItem.cs`, document fields are mapped to BSON types as follows:
-
-```csharp
-public class TodoItem
-{
-    [BsonId]
-    [BsonRepresentation(BsonType.ObjectId)]
-    public string? Id { get; set; }
-
-    [Required]
-    public string Title { get; set; } = string.Empty;
-
-    public string? Description { get; set; }
-
-    public bool IsCompleted { get; set; }
-
-    [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
-    public DateTime? DueDate { get; set; }
-
-    [BsonRepresentation(BsonType.String)]
-    public Priority Priority { get; set; } = Priority.Medium;
-
-    public string? Category { get; set; } = "General";
-
-    [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
-
-    [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
-    public DateTime? CompletedAt { get; set; }
-}
-```
-
-### Automated Seeding Logic
-In `Program.cs` and `MongoDbContext.cs`, the application checks if the `TodoItems` collection in database `todo-csharp` is empty upon startup. If empty, it populates initial sample task documents automatically.
-
----
-
-## CI/CD & Azure Deployment
-
-Automated Continuous Integration and Continuous Deployment (CI/CD) is configured using **GitHub Actions** via `.github/workflows/azure-deploy.yml`.
-
-### Workflow Pipeline Details:
-- **Trigger**: Pushes to `main` branch.
-- **Runner**: `ubuntu-latest` with `.NET 10.0 SDK`.
-- **Deployment Target**: Azure App Service (`todo-plus-krishna`).
-- **Steps**:
-  1. Source checkout via `actions/checkout@v4`.
-  2. Setup .NET via `actions/setup-dotnet@v4`.
-  3. Package restore & Release build (`dotnet build --configuration Release`).
-  4. Publish output binaries (`dotnet publish`).
-  5. Authenticate via Azure Service Principal (`azure/login@v2`).
-  6. Deploy to Azure Web App via `azure/webapps-deploy@v3`.
-
----
-
-##  License
-
-This project is open-source and available under the [MIT License](LICENSE).
-
-
+4. **Access in Browser**:
+   Navigate to `https://localhost:7198` (or the printed port).
