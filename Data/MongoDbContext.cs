@@ -133,8 +133,7 @@ namespace TodoPlus.Data
                 {
                     // Backfill any unassigned TodoItems with demoUser's ID
                     var unassignedFilter = Builders<TodoItem>.Filter.Or(
-                        Builders<TodoItem>.Filter.Eq(t => t.UserId, null),
-                        Builders<TodoItem>.Filter.Eq(t => t.UserId, "")
+                        Builders<TodoItem>.Filter.Eq(t => t.UserId, null)
                     );
                     var update = Builders<TodoItem>.Update
                         .Set(t => t.UserId, demoUser.Id)
